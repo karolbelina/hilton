@@ -1,0 +1,10 @@
+[package]
+name = "hilton-simulate"
+version = "0.1.0"
+authors = ["Karol Belina <karolbelina@gmail.com>"]
+edition = "2021"
+description = "TODO"
+
+[dependencies]
+simavr-ffi = "0.1.0"
+sdl2 = "0.35.0"

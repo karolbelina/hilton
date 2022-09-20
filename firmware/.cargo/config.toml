@@ -1,0 +1,11 @@
+[alias]
+flash = "avrdude"
+
+[build]
+target = "target.json"
+
+[target.'cfg(target_arch = "avr")']
+runner = "hilton-simulate"
+
+[unstable]
+build-std = ["core"]
