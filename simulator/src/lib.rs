@@ -1,4 +1,5 @@
 mod ioctl;
+mod lcd;
 mod led;
 mod pins;
 
