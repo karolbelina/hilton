@@ -13,13 +13,13 @@ fn main() -> ! {
     let dp = Peripherals::take().unwrap();
     let pins = pins!(dp);
 
-    let mut lcd = lcd_10168! {
-        pins.pc1 => rst,
-        pins.pc2 => sce,
-        pins.pc3 => dc,
-        pins.pc4 => din,
-        pins.pc5 => clk,
-    };
+    let mut lcd = Lcd10168::builder()
+        .reset(pins.pc1)
+        .chip_enable(pins.pc2)
+        .data_command(pins.pc3)
+        .data_in(pins.pc4)
+        .clock(pins.pc5)
+        .build();
 
     lcd.reset();
 

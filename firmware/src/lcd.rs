@@ -2,31 +2,13 @@ use atmega_hal::{clock::MHz16, delay::Delay};
 use avr_hal_generic::port::{mode::Output, Pin, PinOps};
 use avr_hal_generic::prelude::*;
 
+mod builder;
 mod commands;
 
 use self::commands::*;
 
 const COLUMNS: u32 = 84;
 const ROWS: u32 = 6;
-
-#[macro_export]
-macro_rules! lcd_10168 {
-    (
-        $rst:expr => rst,
-        $sce:expr => sce,
-        $dc:expr => dc,
-        $din:expr => din,
-        $clk:expr => clk $(,)?
-    ) => {
-        Lcd10168::new(
-            $rst.into_output(),
-            $sce.into_output(),
-            $dc.into_output(),
-            $din.into_output(),
-            $clk.into_output(),
-        )
-    };
-}
 
 pub struct Lcd10168<RST, SCE, DC, DIN, CLK> {
     rst: Pin<Output, RST>,
@@ -42,7 +24,7 @@ pub struct Lcd10168<RST, SCE, DC, DIN, CLK> {
 }
 
 impl<RST, SCE, DC, DIN, CLK> Lcd10168<RST, SCE, DC, DIN, CLK> {
-    pub fn new(
+    fn new(
         rst: Pin<Output, RST>,
         sce: Pin<Output, SCE>,
         dc: Pin<Output, DC>,
