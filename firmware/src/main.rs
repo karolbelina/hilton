@@ -23,17 +23,18 @@ fn main() -> ! {
 
     lcd.reset();
 
-    lcd.commands().activate_chip();
-    lcd.commands().set_horizontal_addressing();
-    {
-        let mut ext_commands = lcd.ext_commands();
-        ext_commands.set_bias_voltage_coefficient(0);
-        ext_commands.set_temperature_coefficient(0);
-        ext_commands.set_operation_voltage(50);
+    lcd.function_set(lcd::ChipMode::Active, lcd::AddressingMode::Horizontal, lcd::InstructionSet::Extended);
+    unsafe {
+        lcd.set_bias_voltage_coefficient(0);
+        lcd.set_temperature_coefficient(0);
+        lcd.set_operation_voltage(50);
     }
-    lcd.commands().set_normal_display();
-    lcd.commands().set_x_cursor(0);
-    lcd.commands().set_y_cursor(0);
+    lcd.function_set(lcd::ChipMode::Active, lcd::AddressingMode::Horizontal, lcd::InstructionSet::Basic);
+    unsafe {
+        lcd.set_display_mode(lcd::DisplayMode::Normal);
+        lcd.set_x_cursor(0);
+        lcd.set_y_cursor(0);
+    }
 
     lcd.write_data(0b01111110);
     lcd.write_data(0b11110011);
