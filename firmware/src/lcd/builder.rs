@@ -1,4 +1,5 @@
 use super::Lcd10168;
+use atmega_hal::{clock::MHz16, delay::Delay};
 use avr_hal_generic::port::{
     mode::{Io, Output},
     Pin, PinOps,
@@ -126,12 +127,13 @@ impl<RST, SCE, DC, DIN, CLK>
     Lcd10168Builder<Connected<RST>, Connected<SCE>, Connected<DC>, Connected<DIN>, Connected<CLK>>
 {
     pub fn build(self) -> Lcd10168<RST, SCE, DC, DIN, CLK> {
-        Lcd10168::new(
-            self.rst.into_inner(),
-            self.sce.into_inner(),
-            self.dc.into_inner(),
-            self.din.into_inner(),
-            self.clk.into_inner(),
-        )
+        Lcd10168 {
+            rst: self.rst.into_inner(),
+            sce: self.sce.into_inner(),
+            dc: self.dc.into_inner(),
+            din: self.din.into_inner(),
+            clk: self.clk.into_inner(),
+            delay: Delay::<MHz16>::new(),
+        }
     }
 }

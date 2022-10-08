@@ -9,9 +9,6 @@ mod commands;
 
 pub use self::commands::*;
 
-const COLUMNS: u32 = 84;
-const ROWS: u32 = 6;
-
 /// Provides a basic interface for the LCD-10168 chip. See the
 /// [full specification](https://www.sparkfun.com/datasheets/LCD/Monochrome/Nokia5110.pdf)
 /// of the chip for more details.
@@ -25,24 +22,8 @@ pub struct Lcd10168<RST, SCE, DC, DIN, CLK> {
     delay: Delay<MHz16>,
 }
 
-impl<RST, SCE, DC, DIN, CLK> Lcd10168<RST, SCE, DC, DIN, CLK> {
-    fn new(
-        rst: Pin<Output, RST>,
-        sce: Pin<Output, SCE>,
-        dc: Pin<Output, DC>,
-        din: Pin<Output, DIN>,
-        clk: Pin<Output, CLK>,
-    ) -> Self {
-        Self {
-            rst,
-            sce,
-            dc,
-            din,
-            clk,
-            delay: Delay::<MHz16>::new(),
-        }
-    }
-}
+pub const COLUMNS: usize = 84;
+pub const ROWS: usize = 6;
 
 macro_rules! command {
     ($type:expr => $($arg:expr),*) => {
@@ -50,13 +31,8 @@ macro_rules! command {
     };
 }
 
-impl<RST, SCE, DC, DIN, CLK> Lcd10168<RST, SCE, DC, DIN, CLK>
-where
-    RST: PinOps,
-    SCE: PinOps,
-    DC: PinOps,
-    DIN: PinOps,
-    CLK: PinOps,
+impl<RST: PinOps, SCE: PinOps, DC: PinOps, DIN: PinOps, CLK: PinOps>
+    Lcd10168<RST, SCE, DC, DIN, CLK>
 {
     /// Executes a reset sequence of the chip.
     pub fn reset(&mut self) {
@@ -71,15 +47,20 @@ where
 
     /// Sends a command for controlling the chip mode (active/power down), the addressing
     /// mode (horizontal/vertical), and the instruction set (basic/extended) simultaneously.
-    pub fn function_set(&mut self, chip_mode: ChipMode, addressing_mode: AddressingMode, instruction_set: InstructionSet) {
+    pub fn function_set(
+        &mut self,
+        chip_mode: ChipMode,
+        addressing_mode: AddressingMode,
+        instruction_set: InstructionSet,
+    ) {
         self.write_command(command!(5 => chip_mode, addressing_mode, instruction_set));
     }
 
     /// Sends a command for setting the X cursor of the display, or rather the X address of
     /// the display RAM.
-    /// 
+    ///
     /// # Safety
-    /// 
+    ///
     /// The instruction set of the LCD must be set to [`Basic`](InstructionSet::Basic).
     /// `x` must be a value less than 84.
     pub unsafe fn set_x_cursor(&mut self, x: u8) {
@@ -89,9 +70,9 @@ where
 
     /// Sends a command for setting the Y cursor of the display, or rather the Y address of
     /// the display RAM.
-    /// 
+    ///
     /// # Safety
-    /// 
+    ///
     /// The instruction set of the LCD must be set to [`Basic`](InstructionSet::Basic).
     /// `y` must be a value less than 6.
     pub unsafe fn set_y_cursor(&mut self, y: u8) {
@@ -100,18 +81,18 @@ where
     }
 
     /// Sends a command for setting the mode of the display.
-    /// 
+    ///
     /// # Safety
-    /// 
+    ///
     /// The instruction set of the LCD must be set to [`Basic`](InstructionSet::Basic).
     pub unsafe fn set_display_mode(&mut self, display_mode: DisplayMode) {
         self.write_command(command!(3 => display_mode));
     }
 
     /// Sends a command for setting the bias system voltage coefficient.
-    /// 
+    ///
     /// # Safety
-    /// 
+    ///
     /// The instruction set of the LCD must be set to [`Extended`](InstructionSet::Extended).
     /// `coeff` must be a value less than 8.
     pub unsafe fn set_bias_voltage_coefficient(&mut self, coeff: u8) {
@@ -120,9 +101,9 @@ where
     }
 
     /// Sends a command for setting the temperature coefficient.
-    /// 
+    ///
     /// # Safety
-    /// 
+    ///
     /// The instruction set of the LCD must be set to [`Extended`](InstructionSet::Extended).
     /// `coeff` must be a value less than 4.
     pub unsafe fn set_temperature_coefficient(&mut self, coeff: u8) {
@@ -131,9 +112,9 @@ where
     }
 
     /// Sends a command for setting the operation voltage.
-    /// 
+    ///
     /// # Safety
-    /// 
+    ///
     /// The instruction set of the LCD must be set to [`Extended`](InstructionSet::Extended).
     /// `voltage` must be a value less than 128.
     pub unsafe fn set_operation_voltage(&mut self, voltage: u8) {
