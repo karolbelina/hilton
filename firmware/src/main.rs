@@ -6,10 +6,10 @@ use avr_hal_generic::port::PinOps;
 use avr_hal_generic::prelude::*;
 use panic_halt as _;
 
-mod buf_display;
+mod canvas;
 mod lcd;
 
-use self::buf_display::BufDisplay;
+use self::canvas::Canvas;
 use self::lcd::Lcd10168;
 
 #[atmega_hal::entry]
@@ -18,7 +18,7 @@ fn main() -> ! {
     let pins = pins!(dp);
     let mut delay = Delay::<MHz16>::new();
 
-    let mut buf_display = BufDisplay::new(
+    let mut canvas = Canvas::new(
         Lcd10168::builder()
             .reset(pins.pc1)
             .chip_enable(pins.pc2)
@@ -32,7 +32,7 @@ fn main() -> ! {
     let mut ball = Ball::new(0, 0, 1, 1);
 
     loop {
-        ball.render(&mut buf_display);
+        ball.render(&mut canvas);
         ball.update();
         delay.delay_ms(16u16);
     }
@@ -71,17 +71,17 @@ impl Ball {
 
     fn render<RST: PinOps, SCE: PinOps, DC: PinOps, DIN: PinOps, CLK: PinOps>(
         &self,
-        buf_display: &mut BufDisplay<RST, SCE, DC, DIN, CLK>,
+        canvas: &mut Canvas<RST, SCE, DC, DIN, CLK>,
     ) {
-        buf_display.clear();
+        canvas.clear();
 
-        buf_display.draw_rect(self.x, self.y, Self::WIDTH, Self::HEIGHT, true);
+        canvas.draw_rect(self.x, self.y, Self::WIDTH, Self::HEIGHT, true);
         // Remove corner pixels
-        buf_display.set_pixel(self.x, self.y, false);
-        buf_display.set_pixel(self.x + Self::WIDTH - 1, self.y, false);
-        buf_display.set_pixel(self.x, self.y + Self::HEIGHT - 1, false);
-        buf_display.set_pixel(self.x + Self::WIDTH - 1, self.y + Self::HEIGHT - 1, false);
+        canvas.set_pixel(self.x, self.y, false);
+        canvas.set_pixel(self.x + Self::WIDTH - 1, self.y, false);
+        canvas.set_pixel(self.x, self.y + Self::HEIGHT - 1, false);
+        canvas.set_pixel(self.x + Self::WIDTH - 1, self.y + Self::HEIGHT - 1, false);
 
-        buf_display.render()
+        canvas.render()
     }
 }

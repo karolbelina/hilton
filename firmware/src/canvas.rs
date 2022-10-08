@@ -1,25 +1,25 @@
 use crate::lcd::{self, Lcd10168};
 use avr_hal_generic::port::PinOps;
 
-pub struct BufDisplay<RST, SCE, DC, DIN, CLK> {
+pub struct Canvas<RST, SCE, DC, DIN, CLK> {
     lcd: Lcd10168<RST, SCE, DC, DIN, CLK>,
     buffer: [u8; lcd::COLUMNS * lcd::ROWS],
 }
 
-impl<RST, SCE, DC, DIN, CLK> BufDisplay<RST, SCE, DC, DIN, CLK> {
-    pub fn new(lcd: Lcd10168<RST, SCE, DC, DIN, CLK>) -> BufDisplayUninit<RST, SCE, DC, DIN, CLK> {
-        BufDisplayUninit { lcd }
+impl<RST, SCE, DC, DIN, CLK> Canvas<RST, SCE, DC, DIN, CLK> {
+    pub fn new(lcd: Lcd10168<RST, SCE, DC, DIN, CLK>) -> UninitCanvas<RST, SCE, DC, DIN, CLK> {
+        UninitCanvas { lcd }
     }
 }
 
-pub struct BufDisplayUninit<RST, SCE, DC, DIN, CLK> {
+pub struct UninitCanvas<RST, SCE, DC, DIN, CLK> {
     lcd: Lcd10168<RST, SCE, DC, DIN, CLK>,
 }
 
 impl<RST: PinOps, SCE: PinOps, DC: PinOps, DIN: PinOps, CLK: PinOps>
-    BufDisplayUninit<RST, SCE, DC, DIN, CLK>
+    UninitCanvas<RST, SCE, DC, DIN, CLK>
 {
-    pub fn init(self) -> BufDisplay<RST, SCE, DC, DIN, CLK> {
+    pub fn init(self) -> Canvas<RST, SCE, DC, DIN, CLK> {
         let Self { mut lcd } = self;
 
         lcd.reset();
@@ -42,14 +42,14 @@ impl<RST: PinOps, SCE: PinOps, DC: PinOps, DIN: PinOps, CLK: PinOps>
         // Safety: the instruction set has been set to basic on the line above
         unsafe { lcd.set_display_mode(lcd::DisplayMode::Normal) };
 
-        BufDisplay {
+        Canvas {
             lcd,
             buffer: [0; lcd::COLUMNS * lcd::ROWS],
         }
     }
 }
 
-impl<RST, SCE, DC, DIN, CLK> BufDisplay<RST, SCE, DC, DIN, CLK> {
+impl<RST, SCE, DC, DIN, CLK> Canvas<RST, SCE, DC, DIN, CLK> {
     #[inline]
     pub fn buffer_slice(&mut self, x: usize, y: usize) -> &mut u8 {
         &mut self.buffer[y / 8 * lcd::COLUMNS + x]
@@ -85,11 +85,11 @@ impl<RST, SCE, DC, DIN, CLK> BufDisplay<RST, SCE, DC, DIN, CLK> {
 }
 
 impl<RST: PinOps, SCE: PinOps, DC: PinOps, DIN: PinOps, CLK: PinOps>
-    BufDisplay<RST, SCE, DC, DIN, CLK>
+    Canvas<RST, SCE, DC, DIN, CLK>
 {
     pub fn render(&mut self) {
-        // Safety: we couldn't have acquired a `BufDisplay` without calling
-        // `BufDisplayUninit::init` which sets the instruction set to basic
+        // Safety: we couldn't have acquired a `Canvas` without calling
+        // `UninitCanvas::init` which sets the instruction set to basic
         unsafe {
             self.lcd.set_x_cursor(0);
             self.lcd.set_y_cursor(0);
