@@ -22,8 +22,8 @@ pub enum InstructionSet {
 #[derive(Default, Clone, Copy)]
 pub enum DisplayMode {
     #[default]
-    Blank = 0b00,
-    Normal = 0b10,
-    Filled = 0b01,
-    Inverse = 0b11,
+    Blank = 0b000,
+    Normal = 0b100,
+    Filled = 0b001,
+    Inverse = 0b101,
 }
