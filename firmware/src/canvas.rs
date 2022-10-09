@@ -1,5 +1,14 @@
+#![allow(dead_code)]
+
 use crate::lcd::{self, Lcd10168};
 use avr_hal_generic::port::PinOps;
+
+mod color;
+mod draw;
+mod vec2;
+
+pub use self::color::*;
+pub use self::vec2::*;
 
 pub struct Canvas<RST, SCE, DC, DIN, CLK> {
     lcd: Lcd10168<RST, SCE, DC, DIN, CLK>,
@@ -51,36 +60,8 @@ impl<RST: PinOps, SCE: PinOps, DC: PinOps, DIN: PinOps, CLK: PinOps>
 
 impl<RST, SCE, DC, DIN, CLK> Canvas<RST, SCE, DC, DIN, CLK> {
     #[inline]
-    pub fn buffer_slice(&mut self, x: usize, y: usize) -> &mut u8 {
+    pub fn buffer_chunk(&mut self, Vec2 { x, y }: Vec2<usize>) -> &mut u8 {
         &mut self.buffer[y / 8 * lcd::COLUMNS + x]
-    }
-
-    #[inline]
-    fn slice_pixel_index(y: usize) -> usize {
-        y % 8
-    }
-
-    pub fn set_pixel(&mut self, x: usize, y: usize, color: bool) {
-        let slice = self.buffer_slice(x, y);
-        let i = Self::slice_pixel_index(y);
-
-        if color {
-            *slice |= 1 << i;
-        } else {
-            *slice &= !(1 << i);
-        }
-    }
-
-    pub fn clear(&mut self) {
-        self.buffer.fill(0);
-    }
-
-    pub fn draw_rect(&mut self, x: usize, y: usize, width: usize, height: usize, color: bool) {
-        for dy in 0..height {
-            for dx in 0..width {
-                self.set_pixel(x + dx, y + dy, color);
-            }
-        }
     }
 }
 

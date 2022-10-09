@@ -9,8 +9,8 @@ use panic_halt as _;
 mod canvas;
 mod lcd;
 
-use self::canvas::Canvas;
-use self::lcd::Lcd10168;
+use self::canvas::*;
+use self::lcd::*;
 
 #[atmega_hal::entry]
 fn main() -> ! {
@@ -29,43 +29,38 @@ fn main() -> ! {
     )
     .init();
 
-    let mut ball = Ball::new(0, 0, 1, 1);
+    let mut ball = Ball::new(Vec2::new(0, 0), Vec2::new(1, 1));
 
     loop {
         ball.render(&mut canvas);
         ball.update();
-        delay.delay_ms(16u16);
+        delay.delay_ms(100u16);
     }
 }
 
-const FIELD_WIDTH: usize = 84;
-const FIELD_HEIGHT: usize = 48;
+const FIELD_SIZE: Vec2<isize> = Vec2::new(84, 48);
 
 struct Ball {
-    x: usize,
-    y: usize,
-    v_x: isize,
-    v_y: isize,
+    position: Vec2<isize>,
+    velocity: Vec2<isize>,
 }
 
 impl Ball {
-    const WIDTH: usize = 8;
-    const HEIGHT: usize = 8;
+    const SIZE: Vec2<isize> = Vec2::new(8, 8);
 
-    pub fn new(x: usize, y: usize, v_x: isize, v_y: isize) -> Self {
-        Self { x, y, v_x, v_y }
+    pub fn new(position: Vec2<isize>, velocity: Vec2<isize>) -> Self {
+        Self { position, velocity }
     }
 
     pub fn update(&mut self) {
-        self.x = (self.x as isize + self.v_x) as usize;
-        self.y = (self.y as isize + self.v_y) as usize;
+        self.position += self.velocity;
 
-        if self.x == 0 || self.x == FIELD_WIDTH - Self::WIDTH - 1 {
-            self.v_x *= -1;
+        if self.position.x == 0 || self.position.x + Ball::SIZE.x == FIELD_SIZE.x {
+            self.velocity.x *= -1;
         }
 
-        if self.y == 0 || self.y == FIELD_HEIGHT - Self::HEIGHT - 1 {
-            self.v_y *= -1;
+        if self.position.y == 0 || self.position.y + Ball::SIZE.y == FIELD_SIZE.y {
+            self.velocity.y *= -1;
         }
     }
 
@@ -73,14 +68,20 @@ impl Ball {
         &self,
         canvas: &mut Canvas<RST, SCE, DC, DIN, CLK>,
     ) {
+        const CORNERS: [Vec2<isize>; 4] = [
+            Vec2::new(0, 0),
+            Vec2::new(Ball::SIZE.x - 1, 0),
+            Vec2::new(0, Ball::SIZE.y - 1),
+            Vec2::new(Ball::SIZE.x - 1, Ball::SIZE.y - 1),
+        ];
+
         canvas.clear();
 
-        canvas.draw_rect(self.x, self.y, Self::WIDTH, Self::HEIGHT, true);
+        canvas.draw_rect(self.position, Self::SIZE, Color::On);
         // Remove corner pixels
-        canvas.set_pixel(self.x, self.y, false);
-        canvas.set_pixel(self.x + Self::WIDTH - 1, self.y, false);
-        canvas.set_pixel(self.x, self.y + Self::HEIGHT - 1, false);
-        canvas.set_pixel(self.x + Self::WIDTH - 1, self.y + Self::HEIGHT - 1, false);
+        for corner in CORNERS {
+            canvas.set_pixel_color(self.position + corner, Color::Off);
+        }
 
         canvas.render()
     }
