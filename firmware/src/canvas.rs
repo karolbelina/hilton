@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 use crate::lcd::{self, Lcd10168};
+use atmega_hal::port::Dynamic;
 use avr_hal_generic::port::PinOps;
 
 mod chunk;
@@ -12,7 +13,7 @@ pub use self::chunk::*;
 pub use self::color::*;
 pub use self::vec2::*;
 
-pub struct Canvas<RST, SCE, DC, DIN, CLK> {
+pub struct Canvas<RST = Dynamic, SCE = Dynamic, DC = Dynamic, DIN = Dynamic, CLK = Dynamic> {
     lcd: Lcd10168<RST, SCE, DC, DIN, CLK>,
     buffer: [Chunk; lcd::COLUMNS * lcd::ROWS],
 }
@@ -87,6 +88,19 @@ impl<RST: PinOps, SCE: PinOps, DC: PinOps, DIN: PinOps, CLK: PinOps>
 
         for chunk in self.buffer {
             self.lcd.write_data(chunk.into());
+        }
+    }
+}
+
+impl<RST: PinOps, SCE: PinOps, DC: PinOps, DIN: PinOps, CLK: PinOps>
+    Canvas<RST, SCE, DC, DIN, CLK>
+{
+    pub fn downgrade(
+        self,
+    ) -> Canvas<RST::Dynamic, SCE::Dynamic, DC::Dynamic, DIN::Dynamic, CLK::Dynamic> {
+        Canvas {
+            lcd: self.lcd.downgrade(),
+            buffer: self.buffer,
         }
     }
 }

@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use atmega_hal::{clock::MHz16, delay::Delay};
+use atmega_hal::{clock::MHz16, delay::Delay, port::Dynamic};
 use avr_hal_generic::port::{mode::Output, Pin, PinOps};
 use avr_hal_generic::prelude::*;
 
@@ -12,7 +12,7 @@ pub use self::commands::*;
 /// Provides a basic interface for the LCD-10168 chip. See the
 /// [full specification](https://www.sparkfun.com/datasheets/LCD/Monochrome/Nokia5110.pdf)
 /// of the chip for more details.
-pub struct Lcd10168<RST, SCE, DC, DIN, CLK> {
+pub struct Lcd10168<RST = Dynamic, SCE = Dynamic, DC = Dynamic, DIN = Dynamic, CLK = Dynamic> {
     rst: Pin<Output, RST>,
     sce: Pin<Output, SCE>,
     dc: Pin<Output, DC>,
@@ -152,5 +152,22 @@ impl<RST: PinOps, SCE: PinOps, DC: PinOps, DIN: PinOps, CLK: PinOps>
         }
 
         self.sce.set_high();
+    }
+}
+
+impl<RST: PinOps, SCE: PinOps, DC: PinOps, DIN: PinOps, CLK: PinOps>
+    Lcd10168<RST, SCE, DC, DIN, CLK>
+{
+    pub fn downgrade(
+        self,
+    ) -> Lcd10168<RST::Dynamic, SCE::Dynamic, DC::Dynamic, DIN::Dynamic, CLK::Dynamic> {
+        Lcd10168 {
+            rst: self.rst.downgrade(),
+            sce: self.sce.downgrade(),
+            dc: self.dc.downgrade(),
+            din: self.din.downgrade(),
+            clk: self.clk.downgrade(),
+            delay: self.delay,
+        }
     }
 }
