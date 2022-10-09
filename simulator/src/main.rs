@@ -14,16 +14,16 @@ const VERTICAL_PADDING: u32 = 8 * PIXEL_HEIGHT;
 pub fn main() -> Result<(), String> {
     let program_path = env::args().skip(1).next().expect("Path");
 
-    let mut sim = Simulator::atmega328p(program_path);
-    // let led = sim.led(sim.pins().pb0());
-    let lcd = sim.lcd_10168(
-        sim.pins().pc1(),
-        sim.pins().pc2(),
-        sim.pins().pc3(),
-        sim.pins().pc4(),
-        sim.pins().pc5(),
+    let mut simulation = Simulator::atmega328p(program_path);
+    let panic_led = simulation.led(simulation.pins().pb0());
+    let lcd = simulation.lcd_10168(
+        simulation.pins().pc1(),
+        simulation.pins().pc2(),
+        simulation.pins().pc3(),
+        simulation.pins().pc4(),
+        simulation.pins().pc5(),
     );
-    sim.start();
+    simulation.start();
 
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
@@ -82,8 +82,10 @@ pub fn main() -> Result<(), String> {
             }
         }
 
-        // canvas.set_draw_color(Color::RGB(if led.is_on() { 255 } else { 64 }, 0, 0));
-        // canvas.fill_rect(Rect::new(10, 10, 50, 50)).unwrap();
+        if panic_led.is_on() {
+            canvas.set_draw_color(Color::RGB(255, 0, 0));
+            canvas.fill_rect(Rect::new(10, 10, 50, 50)).unwrap();
+        }
 
         canvas.present();
 

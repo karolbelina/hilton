@@ -4,10 +4,10 @@
 use atmega_hal::{clock::MHz16, delay::Delay, pins, Peripherals};
 use avr_hal_generic::port::PinOps;
 use avr_hal_generic::prelude::*;
-use panic_halt as _;
 
 mod canvas;
 mod lcd;
+mod panic;
 
 use self::canvas::*;
 use self::lcd::*;
@@ -34,7 +34,7 @@ fn main() -> ! {
     loop {
         ball.render(&mut canvas);
         ball.update();
-        delay.delay_ms(500u16);
+        delay.delay_ms(16u16);
     }
 }
 

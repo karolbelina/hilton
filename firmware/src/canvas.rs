@@ -64,8 +64,13 @@ impl<RST: PinOps, SCE: PinOps, DC: PinOps, DIN: PinOps, CLK: PinOps>
 
 impl<RST, SCE, DC, DIN, CLK> Canvas<RST, SCE, DC, DIN, CLK> {
     #[inline]
-    pub fn buffer_chunk(&mut self, Vec2 { x, y }: Vec2<usize>) -> &mut Chunk {
-        &mut self.buffer[y / 8 * lcd::COLUMNS + x]
+    pub fn chunk_at(&mut self, position: Vec2<usize>) -> &mut Chunk {
+        self.chunk_at_raw(position.x, position.y / 8)
+    }
+
+    #[inline]
+    pub fn chunk_at_raw(&mut self, column: usize, row: usize) -> &mut Chunk {
+        &mut self.buffer[row * lcd::COLUMNS + column]
     }
 }
 

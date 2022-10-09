@@ -8,7 +8,7 @@ impl<RST, SCE, DC, DIN, CLK> Canvas<RST, SCE, DC, DIN, CLK> {
             Err(_) => return,
         };
 
-        let chunk = self.buffer_chunk(point);
+        let chunk = self.chunk_at(point);
         let mask = Chunk::bit(point.y % 8);
 
         match color {
