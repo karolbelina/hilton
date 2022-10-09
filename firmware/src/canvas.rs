@@ -3,20 +3,24 @@
 use crate::lcd::{self, Lcd10168};
 use avr_hal_generic::port::PinOps;
 
+mod chunk;
 mod color;
 mod draw;
 mod vec2;
 
+pub use self::chunk::*;
 pub use self::color::*;
 pub use self::vec2::*;
 
 pub struct Canvas<RST, SCE, DC, DIN, CLK> {
     lcd: Lcd10168<RST, SCE, DC, DIN, CLK>,
-    buffer: [u8; lcd::COLUMNS * lcd::ROWS],
+    buffer: [Chunk; lcd::COLUMNS * lcd::ROWS],
 }
 
 impl<RST, SCE, DC, DIN, CLK> Canvas<RST, SCE, DC, DIN, CLK> {
-    pub fn new(lcd: Lcd10168<RST, SCE, DC, DIN, CLK>) -> UninitCanvas<RST, SCE, DC, DIN, CLK> {
+    pub fn new_uninit(
+        lcd: Lcd10168<RST, SCE, DC, DIN, CLK>,
+    ) -> UninitCanvas<RST, SCE, DC, DIN, CLK> {
         UninitCanvas { lcd }
     }
 }
@@ -53,14 +57,14 @@ impl<RST: PinOps, SCE: PinOps, DC: PinOps, DIN: PinOps, CLK: PinOps>
 
         Canvas {
             lcd,
-            buffer: [0; lcd::COLUMNS * lcd::ROWS],
+            buffer: [Default::default(); lcd::COLUMNS * lcd::ROWS],
         }
     }
 }
 
 impl<RST, SCE, DC, DIN, CLK> Canvas<RST, SCE, DC, DIN, CLK> {
     #[inline]
-    pub fn buffer_chunk(&mut self, Vec2 { x, y }: Vec2<usize>) -> &mut u8 {
+    pub fn buffer_chunk(&mut self, Vec2 { x, y }: Vec2<usize>) -> &mut Chunk {
         &mut self.buffer[y / 8 * lcd::COLUMNS + x]
     }
 }
@@ -76,8 +80,8 @@ impl<RST: PinOps, SCE: PinOps, DC: PinOps, DIN: PinOps, CLK: PinOps>
             self.lcd.set_y_cursor(0);
         }
 
-        for slice in self.buffer {
-            self.lcd.write_data(slice);
+        for chunk in self.buffer {
+            self.lcd.write_data(chunk.into());
         }
     }
 }

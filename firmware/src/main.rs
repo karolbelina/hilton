@@ -18,7 +18,7 @@ fn main() -> ! {
     let pins = pins!(dp);
     let mut delay = Delay::<MHz16>::new();
 
-    let mut canvas = Canvas::new(
+    let mut canvas = Canvas::new_uninit(
         Lcd10168::builder()
             .reset(pins.pc1)
             .chip_enable(pins.pc2)
@@ -29,12 +29,12 @@ fn main() -> ! {
     )
     .init();
 
-    let mut ball = Ball::new(Vec2::new(0, 0), Vec2::new(1, 1));
+    let mut ball = Ball::new(FIELD_SIZE / 2, Vec2::new(1, 1));
 
     loop {
         ball.render(&mut canvas);
         ball.update();
-        delay.delay_ms(100u16);
+        delay.delay_ms(500u16);
     }
 }
 

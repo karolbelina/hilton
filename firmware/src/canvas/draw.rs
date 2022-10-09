@@ -1,4 +1,4 @@
-use super::{Canvas, Color, Vec2};
+use super::{Canvas, Chunk, Color, Vec2};
 use core::{mem, ops::Range};
 
 impl<RST, SCE, DC, DIN, CLK> Canvas<RST, SCE, DC, DIN, CLK> {
@@ -9,16 +9,16 @@ impl<RST, SCE, DC, DIN, CLK> Canvas<RST, SCE, DC, DIN, CLK> {
         };
 
         let chunk = self.buffer_chunk(point);
-        let i = point.y % 8;
+        let mask = Chunk::bit(point.y % 8);
 
         match color {
-            Color::On => *chunk |= 1 << i,
-            Color::Off => *chunk &= !(1 << i),
+            Color::On => *chunk |= mask,
+            Color::Off => *chunk &= !mask,
         }
     }
 
     pub fn clear(&mut self) {
-        self.buffer.fill(0);
+        self.buffer.fill(Default::default());
     }
 
     pub fn draw_rect(&mut self, position: Vec2<isize>, size: Vec2<isize>, color: Color) {

@@ -1,3 +1,5 @@
+#![allow(clippy::identity_op)]
+
 #[derive(Default, Clone, Copy)]
 pub enum ChipMode {
     Active = 0 << 2,
