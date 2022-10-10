@@ -13,7 +13,7 @@ impl Pixel {
 }
 
 impl Draw for Pixel {
-    fn draw<T: Blit>(&self, canvas: &mut T) {
+    fn draw<T: Canvas>(&self, canvas: &mut T) {
         canvas.blit_pixel(self.position.x, self.position.y, self.color);
     }
 }

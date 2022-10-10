@@ -4,9 +4,11 @@ use atmega_hal::{clock::MHz16, delay::Delay, port::Dynamic};
 use avr_hal_generic::port::{mode::Output, Pin, PinOps};
 use avr_hal_generic::prelude::*;
 
+mod buffered;
 mod builder;
 mod commands;
 
+pub use self::buffered::*;
 pub use self::commands::*;
 
 /// Provides a basic interface for the LCD-10168 chip. See the

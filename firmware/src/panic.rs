@@ -18,7 +18,7 @@ fn blink_led() -> ! {
     use atmega_hal::{clock::MHz16, delay::Delay, pins, Peripherals};
     use avr_hal_generic::prelude::*;
 
-    // Safety: No other code can run after the panic handler was called
+    // Safety: no other code can run after the panic handler was called
     let dp = unsafe { Peripherals::steal() };
     let pins = pins!(dp);
     let mut led = pins.pb0.into_output();

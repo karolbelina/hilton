@@ -9,5 +9,5 @@ pub use self::pixel::*;
 pub use self::rect::*;
 
 pub trait Draw {
-    fn draw<T: Blit>(&self, canvas: &mut T);
+    fn draw<T: Canvas>(&self, canvas: &mut T);
 }

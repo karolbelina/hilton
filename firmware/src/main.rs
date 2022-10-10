@@ -8,28 +8,26 @@ mod hilton;
 mod lcd;
 mod panic;
 
-use self::canvas::*;
-use self::lcd::*;
+use self::lcd::Lcd10168;
 
 #[atmega_hal::entry]
 fn main() -> ! {
     let dp = Peripherals::take().unwrap();
     let pins = pins!(dp);
 
-    let mut canvas = Canvas::new_uninit(
-        Lcd10168::builder()
-            .reset(pins.pc1)
-            .chip_enable(pins.pc2)
-            .data_command(pins.pc3)
-            .data_in(pins.pc4)
-            .clock(pins.pc5)
-            .build(),
-    )
-    .init();
+    let mut lcd = Lcd10168::builder()
+        .reset(pins.pc1)
+        .chip_enable(pins.pc2)
+        .data_command(pins.pc3)
+        .data_in(pins.pc4)
+        .clock(pins.pc5)
+        .build()
+        .into_buffered()
+        .init();
 
-    hilton::render(&mut canvas);
+    hilton::render(&mut lcd);
 
-    canvas.write_frame();
+    lcd.write_frame();
 
     loop {}
 }
