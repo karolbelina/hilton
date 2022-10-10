@@ -1,13 +1,13 @@
 use crate::canvas::*;
 
-pub fn render<T: Canvas>(canvas: &mut T) {
+pub fn render(canvas: &mut impl Canvas) {
     Circle::new(Vec2::new(42, 20), 12, Color::On).draw(canvas);
 
     render_eyes(canvas, Vec2::new(0, 0));
     render_nose(canvas);
 }
 
-fn render_eyes<T: Canvas>(canvas: &mut T, look_direction: Vec2<isize>) {
+fn render_eyes(canvas: &mut impl Canvas, look_direction: Vec2<isize>) {
     const EYE_POSITIONS: [Vec2<isize>; 2] = [Vec2::new(37, 24), Vec2::new(47, 24)];
 
     for position in EYE_POSITIONS {
@@ -40,7 +40,7 @@ fn pupils_offsets(look_direction: Vec2<isize>) -> [Vec2<isize>; 2] {
     ]
 }
 
-fn render_nose<T: Canvas>(canvas: &mut T) {
+fn render_nose(canvas: &mut impl Canvas) {
     for position in [
         Vec2::new(41, 28),
         Vec2::new(42, 28),

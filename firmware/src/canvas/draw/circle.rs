@@ -23,7 +23,7 @@ impl Draw for Circle {
     /// The circle's diameter in pixels is always an odd number and is
     /// `radius * 2 + 1`. Negative values of `radius` are valid -- the circle
     /// gets drawn the same way it would have if the sign was flipped.
-    fn draw<T: Canvas>(&self, canvas: &mut T) {
+    fn draw(&self, canvas: &mut impl Canvas) {
         let mut x = 0;
         let mut y = self.radius.abs();
         let mut error = 5 - 4 * y;

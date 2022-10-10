@@ -19,7 +19,7 @@ impl Rect {
 }
 
 impl Draw for Rect {
-    fn draw<T: Canvas>(&self, canvas: &mut T) {
+    fn draw(&self, canvas: &mut impl Canvas) {
         for dy in sorted(self.position.y..self.position.y + self.size.y) {
             for dx in sorted(self.position.x..self.position.x + self.size.x) {
                 canvas.blit_pixel(dx, dy, self.color);
