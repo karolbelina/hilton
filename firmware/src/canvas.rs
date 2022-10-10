@@ -78,7 +78,7 @@ impl<RST, SCE, DC, DIN, CLK> Canvas<RST, SCE, DC, DIN, CLK> {
 impl<RST: PinOps, SCE: PinOps, DC: PinOps, DIN: PinOps, CLK: PinOps>
     Canvas<RST, SCE, DC, DIN, CLK>
 {
-    pub fn render(&mut self) {
+    pub fn write_frame(&mut self) {
         // Safety: we couldn't have acquired a `Canvas` without calling
         // `UninitCanvas::init` which sets the instruction set to basic
         unsafe {
