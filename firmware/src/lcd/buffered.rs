@@ -97,7 +97,7 @@ impl<RST: PinOps, SCE: PinOps, DC: PinOps, DIN: PinOps, CLK: PinOps> Canvas
 impl<RST: PinOps, SCE: PinOps, DC: PinOps, DIN: PinOps, CLK: PinOps>
     BufLcd10168<RST, SCE, DC, DIN, CLK>
 {
-    pub fn write_frame(&mut self) {
+    pub fn display_frame(&mut self) {
         // Safety: we couldn't have acquired a `BufLcd10168` without calling
         // `UninitBufLcd10168::init` which sets the instruction set to basic
         unsafe {

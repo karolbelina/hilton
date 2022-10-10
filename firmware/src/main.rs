@@ -25,9 +25,9 @@ fn main() -> ! {
         .into_buffered()
         .init();
 
-    hilton::render(&mut lcd);
+    hilton::draw(&mut lcd);
 
-    lcd.write_frame();
+    lcd.display_frame();
 
     loop {}
 }
