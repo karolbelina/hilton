@@ -10,7 +10,6 @@ pub struct Vec2<T> {
 }
 
 impl<T> Vec2<T> {
-    #[inline]
     pub const fn new(x: T, y: T) -> Self {
         Vec2 { x, y }
     }
@@ -57,6 +56,7 @@ impl<T: AddAssign> Add for Vec2<T> {
 impl<T: Div<Output = T> + Clone> Div<T> for Vec2<T> {
     type Output = Self;
 
+    #[inline]
     fn div(self, rhs: T) -> Self::Output {
         Self {
             x: self.x / rhs.clone(),

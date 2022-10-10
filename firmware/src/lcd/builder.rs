@@ -1,11 +1,11 @@
-use super::Lcd10168;
+use super::*;
 use atmega_hal::{clock::MHz16, delay::Delay};
 use avr_hal_generic::port::{
     mode::{Io, Output},
     Pin, PinOps,
 };
 
-impl Lcd10168<(), (), (), (), ()> {
+impl Lcd10168<Unconnected, Unconnected, Unconnected, Unconnected, Unconnected> {
     pub fn builder() -> UnconnectedLcd10168Builder {
         Lcd10168Builder::new()
     }

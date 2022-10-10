@@ -1,30 +1,29 @@
-use crate::canvas::{Canvas, Color, Vec2};
-use avr_hal_generic::port::PinOps;
+use crate::canvas::*;
 
-pub fn render<RST: PinOps, SCE: PinOps, DC: PinOps, DIN: PinOps, CLK: PinOps>(
-    canvas: &mut Canvas<RST, SCE, DC, DIN, CLK>,
-) {
-    canvas.draw_filled_circle(Vec2::new(42, 20), 12, Color::On);
+pub fn render<T: Blit>(canvas: &mut T) {
+    Circle::new(Vec2::new(42, 20), 12, Color::On).draw(canvas);
+
     render_eyes(canvas, Vec2::new(0, 0));
     render_nose(canvas);
 }
 
-fn render_eyes<RST: PinOps, SCE: PinOps, DC: PinOps, DIN: PinOps, CLK: PinOps>(
-    canvas: &mut Canvas<RST, SCE, DC, DIN, CLK>,
-    look_direction: Vec2<isize>,
-) {
-    canvas.draw_filled_circle(Vec2::new(37, 24), 3, Color::Off);
-    canvas.draw_filled_circle(Vec2::new(47, 24), 3, Color::Off);
+fn render_eyes<T: Blit>(canvas: &mut T, look_direction: Vec2<isize>) {
+    const EYE_POSITIONS: [Vec2<isize>; 2] = [Vec2::new(37, 24), Vec2::new(47, 24)];
 
-    let [left_pupil_offset, right_pupil_offset] = pupils_offsets(look_direction);
-    const PUPIL_SIZE: Vec2<isize> = Vec2::new(2, 3);
+    for position in EYE_POSITIONS {
+        Circle::new(position, 3, Color::Off).draw(canvas);
+    }
 
-    canvas.draw_rect(Vec2::new(37, 23) + left_pupil_offset, PUPIL_SIZE, Color::On);
-    canvas.draw_rect(
-        Vec2::new(46, 23) + right_pupil_offset,
-        PUPIL_SIZE,
-        Color::On,
-    );
+    const PUPIL_ORIGINS: [Vec2<isize>; 2] = [Vec2::new(37, 23), Vec2::new(46, 23)];
+    let pupil_offsets = pupils_offsets(look_direction);
+
+    for position in PUPIL_ORIGINS
+        .into_iter()
+        .zip(pupil_offsets)
+        .map(|(a, b)| a + b)
+    {
+        Rect::new(position, Vec2::new(2, 3), Color::On).draw(canvas);
+    }
 }
 
 fn pupils_offsets(look_direction: Vec2<isize>) -> [Vec2<isize>; 2] {
@@ -41,11 +40,13 @@ fn pupils_offsets(look_direction: Vec2<isize>) -> [Vec2<isize>; 2] {
     ]
 }
 
-fn render_nose<RST: PinOps, SCE: PinOps, DC: PinOps, DIN: PinOps, CLK: PinOps>(
-    canvas: &mut Canvas<RST, SCE, DC, DIN, CLK>,
-) {
-    canvas.set_pixel_color(Vec2::new(41, 28), Color::Off);
-    canvas.set_pixel_color(Vec2::new(42, 28), Color::Off);
-    canvas.set_pixel_color(Vec2::new(43, 28), Color::Off);
-    canvas.set_pixel_color(Vec2::new(42, 29), Color::Off);
+fn render_nose<T: Blit>(canvas: &mut T) {
+    for position in [
+        Vec2::new(41, 28),
+        Vec2::new(42, 28),
+        Vec2::new(43, 28),
+        Vec2::new(42, 29),
+    ] {
+        Pixel::new(position, Color::Off).draw(canvas);
+    }
 }

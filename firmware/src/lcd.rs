@@ -22,8 +22,10 @@ pub struct Lcd10168<RST = Dynamic, SCE = Dynamic, DC = Dynamic, DIN = Dynamic, C
     delay: Delay<MHz16>,
 }
 
-pub const COLUMNS: usize = 84;
-pub const ROWS: usize = 6;
+impl Lcd10168<Dynamic, Dynamic, Dynamic, Dynamic, Dynamic> {
+    pub const COLUMNS: usize = 84;
+    pub const ROWS: usize = 6;
+}
 
 macro_rules! command {
     ($type:expr => $($arg:expr),*) => {
@@ -64,7 +66,7 @@ impl<RST: PinOps, SCE: PinOps, DC: PinOps, DIN: PinOps, CLK: PinOps>
     /// The instruction set of the LCD must be set to [`Basic`](InstructionSet::Basic).
     /// `x` must be a value less than 84.
     pub unsafe fn set_x_cursor(&mut self, x: u8) {
-        debug_assert!(x < COLUMNS as u8);
+        debug_assert!(x < 84);
         self.write_command(command!(7 => x));
     }
 
@@ -76,7 +78,7 @@ impl<RST: PinOps, SCE: PinOps, DC: PinOps, DIN: PinOps, CLK: PinOps>
     /// The instruction set of the LCD must be set to [`Basic`](InstructionSet::Basic).
     /// `y` must be a value less than 6.
     pub unsafe fn set_y_cursor(&mut self, y: u8) {
-        debug_assert!(y < ROWS as u8);
+        debug_assert!(y < 6);
         self.write_command(command!(6 => y));
     }
 
