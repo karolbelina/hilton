@@ -36,7 +36,7 @@ impl<RST: PinOps, SCE: PinOps, DC: PinOps, DIN: PinOps, CLK: PinOps>
             AddressingMode::Horizontal,
             InstructionSet::Extended,
         );
-        // Safety: the instruction set has been set to extended on the line above
+        // SAFETY: the instruction set has been set to extended on the line above
         unsafe {
             lcd.set_bias_voltage_coefficient(0);
             lcd.set_temperature_coefficient(0);
@@ -47,7 +47,7 @@ impl<RST: PinOps, SCE: PinOps, DC: PinOps, DIN: PinOps, CLK: PinOps>
             AddressingMode::Horizontal,
             InstructionSet::Basic,
         );
-        // Safety: the instruction set has been set to basic on the line above
+        // SAFETY: the instruction set has been set to basic on the line above
         unsafe { lcd.set_display_mode(DisplayMode::Normal) };
 
         BufLcd10168 {
@@ -98,7 +98,7 @@ impl<RST: PinOps, SCE: PinOps, DC: PinOps, DIN: PinOps, CLK: PinOps>
     BufLcd10168<RST, SCE, DC, DIN, CLK>
 {
     pub fn display_frame(&mut self) {
-        // Safety: we couldn't have acquired a `BufLcd10168` without calling
+        // SAFETY: we couldn't have acquired a `BufLcd10168` without calling
         // `UninitBufLcd10168::init` which sets the instruction set to basic
         unsafe {
             self.lcd.set_x_cursor(0);

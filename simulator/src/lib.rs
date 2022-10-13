@@ -42,7 +42,7 @@ impl Simulator {
             avr.as_mut().frequency = frequency;
         }
 
-        // Safety: We know that `elf_firmware_t`'s layout has a non-zero size.
+        // SAFETY: we know that `elf_firmware_t`'s layout has a non-zero size.
         //
         // (we also use `alloc_zeroed`, because that's what simavr's docs
         // suggest to do.)
@@ -51,18 +51,20 @@ impl Simulator {
                 as *mut simavr_ffi::elf_firmware_t
         };
 
-        // Unwrap-safety: This can fail only if the underlying allocator failed
-        //                to find enough memory to allocate the chunk. In that
-        //                case, panicking is the best we can afford anyway.
+        // This can fail only if the underlying allocator failed
+        // to find enough memory to allocate the chunk. In that
+        // case, panicking is the best we can afford anyway.
         let ptr = NonNull::new(ptr).unwrap();
 
-        let path = path.as_ref().display().to_string();
+        let path = path.as_ref().display().to_string().into_bytes();
 
-        // Unwrap-safety: Paths cannot contain null-terminators, so a string
-        //                we've got from `.display().to_string()` cannot either
-        let c_path = CString::new(path).unwrap();
+        // SAFETY: paths cannot contain null-terminators, so a string
+        //         we've got from `.display().to_string()` cannot either
+        let c_path = unsafe {
+            CString::from_vec_unchecked(path)
+        };
 
-        // Safety: `self.ptr` points at a valid, zeroed instance of
+        // SAFETY: `self.ptr` points at a valid, zeroed instance of
         //         `elf_firmware_t`; `c_path` points at a valid `CString`
         let status = unsafe { simavr_ffi::elf_read_firmware(c_path.as_ptr(), ptr.as_ptr()) };
 
@@ -74,7 +76,7 @@ impl Simulator {
             );
         }
 
-        // Safety: We're non-null, the firmware is non-null, what can go wrong
+        // SAFETY: we're non-null, the firmware is non-null, what can go wrong
         unsafe {
             simavr_ffi::avr_load_firmware(avr.as_ptr(), ptr.as_ptr());
         }
@@ -101,7 +103,7 @@ impl Simulator {
 
     /// Shorthand for: [`simavr_ffi::avr_io_getirq()`].
     pub(crate) fn io_getirq(&self, ioctl: IoCtl, irq: u32) -> NonNull<simavr_ffi::avr_irq_t> {
-        // Safety: This function only searches for a pointer in `avr_t`'s data
+        // SAFETY: this function only searches for a pointer in `avr_t`'s data
         //         structures, so it's safe to call on all parameters
         let ptr =
             unsafe { simavr_ffi::avr_io_getirq(self.avr.as_ptr(), ioctl.into_ffi(), irq as _) };
@@ -133,14 +135,14 @@ impl Simulator {
         notify: Option<unsafe extern "C" fn(NonNull<simavr_ffi::avr_irq_t>, u32, *mut T)>,
         param: *mut T,
     ) {
-        // Safety: We're transmuting two parameters:
+        // SAFETY: we're transmuting two parameters:
         // - `NonNull<ffi::avr_irq_t>` -> `*mut ffi::avr_irq_t`,
         // - `*mut T` -> `*mut c_void`
         //
         // ... where both conversions are legal.
         let notify = mem::transmute(notify);
 
-        // Safety: We're transmuting `*mut T` -> `*mut c_void`, which is legal
+        // SAFETY: we're transmuting `*mut T` -> `*mut c_void`, which is legal
         let param = mem::transmute(param);
 
         simavr_ffi::avr_irq_register_notify(irq.as_ptr(), notify, param);
