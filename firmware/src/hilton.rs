@@ -5,6 +5,18 @@ pub fn draw(canvas: &mut impl Canvas) {
 
     draw_eyes(canvas, Vec2::new(0, 0));
     draw_nose(canvas);
+
+    Bitmap::ear(Vec2::new(48, 4)).draw(canvas);
+    Bitmap::ear(Vec2::new(27, 4)).flip_h().draw(canvas);
+
+    Bitmap::strand(Vec2::new(42, 4)).draw(canvas);
+
+    Bitmap::whiskers(Vec2::new(28, 26)).draw(canvas);
+    Bitmap::whiskers(Vec2::new(50, 26)).flip_h().draw(canvas);
+
+    Bitmap::torso(Vec2::new(34, 33)).draw(canvas);
+
+    Bitmap::tail(Vec2::new(50, 36)).draw(canvas);
 }
 
 fn draw_eyes(canvas: &mut impl Canvas, look_direction: Vec2<isize>) {
